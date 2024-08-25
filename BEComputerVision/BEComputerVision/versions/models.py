@@ -1,3 +1,6 @@
 from django.db import models
+from projects.models import Projects
 
-# Create your models here.
+class Versions(models.Model):
+    id = models.CharField(primary_key=True, max_length=255)
+    project = models.ForeignKey(Projects, on_delete=models.CASCADE)

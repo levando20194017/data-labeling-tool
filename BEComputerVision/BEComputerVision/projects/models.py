@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import Users
+from BEComputerVision.users.models import Users
 
 class Projects(models.Model):
     id = models.CharField(primary_key=True, max_length=255)

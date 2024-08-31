@@ -1,6 +1,6 @@
 from django.db import models
-from users.models import Users
-from projects.models import Projects
+from BEComputerVision.users.models import Users
+from BEComputerVision.projects.models import Projects
 
 class Roles(models.Model):
     id = models.CharField(primary_key=True, max_length=255)

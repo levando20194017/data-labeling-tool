@@ -1,5 +1,5 @@
 from django.db import models
-from projects.models import Projects
+from BEComputerVision.projects.models import Projects
 
 class Versions(models.Model):
     id = models.CharField(primary_key=True, max_length=255)

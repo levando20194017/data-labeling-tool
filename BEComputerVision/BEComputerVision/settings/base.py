@@ -31,7 +31,14 @@ INSTALLED_APPS = [
     'mptt',
     'drf_spectacular',
     #internal package
-    'BEComputerVision.product'
+    'BEComputerVision.product',
+    'BEComputerVision.users',
+    'BEComputerVision.roles',
+    'BEComputerVision.projects',
+    'BEComputerVision.images',
+    'BEComputerVision.annotations',
+    'BEComputerVision.dataset',
+    'BEComputerVision.versions',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

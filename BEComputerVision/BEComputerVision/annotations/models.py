@@ -1,7 +1,7 @@
 from django.db import models
-from users.models import Users
-from projects.models import Projects
-from images.models import ImagesProjects
+from BEComputerVision.users.models import Users
+from BEComputerVision.projects.models import Projects
+from BEComputerVision.images.models import ImagesProjects
 
 class Annotations(models.Model):
     id = models.CharField(primary_key=True, max_length=255)

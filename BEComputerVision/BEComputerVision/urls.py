@@ -7,10 +7,12 @@ from BEComputerVision.product import views
 
 router = DefaultRouter()
 # cấu hình router. list api
+# product
 router.register(r"category", views.CategoryViewSet)
 router.register(r"brand", views.BrandViewSet)
 router.register(r"product", views.ProductViewSet)
 
+#user
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),

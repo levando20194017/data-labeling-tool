@@ -4,21 +4,19 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from .models import Users
 from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData
-import uuid
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class UsersViewSet(viewsets.ViewSet):
+class UsersViewSetGetData(viewsets.ViewSet):
     """
     A simple Viewset for handling user actions.
     """
-
     queryset = Users.objects.all()
     serializer_class = UsersSerializerGetData
-
+    
     #api get all users
     @swagger_auto_schema(manual_parameters=[
         openapi.Parameter('page_index', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Index of the page'),
@@ -54,14 +52,19 @@ class UsersViewSet(viewsets.ViewSet):
                 "data": serializer.data
                 }
         })
+        
+class UsersViewSetCreate(viewsets.ViewSet):
+    """
+    A simple Viewset for handling user actions.
+    """
+
+    queryset = Users.objects.all()
+    serializer_class = UsersSerializerCreate
     
     #api create new user
     @action(detail=False, methods=['post'], url_path='create')
     def create_user(self, request):
-        user_data = {
-            'id': str(uuid.uuid4()),
-            'is_verified': False,
-        }
+        user_data = {}
 
         allowed_fields = ['username', 'full_name', 'email', 'password']  # Các trường bạn muốn chấp nhận
 
@@ -70,7 +73,6 @@ class UsersViewSet(viewsets.ViewSet):
                 user_data[field] = request.data[field]
 
         serializer = UsersSerializerCreate(data=user_data)
-        
         if serializer.is_valid():
             serializer.save()
             return Response({

@@ -7,7 +7,6 @@ class UsersSerializerGetData(serializers.ModelSerializer):
         model = Users
         fields = "__all__"
 
-
 class UsersSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = Users

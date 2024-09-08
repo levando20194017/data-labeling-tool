@@ -1,7 +1,8 @@
 from django.db import models
+import uuid
 
 class Users(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=255)
     full_name = models.CharField(max_length=255)
     email = models.CharField(max_length=255, unique=True)

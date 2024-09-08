@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from .models import Users
 from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData
-import uuid
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -65,10 +64,7 @@ class UsersViewSetCreate(viewsets.ViewSet):
     #api create new user
     @action(detail=False, methods=['post'], url_path='create')
     def create_user(self, request):
-        user_data = {
-            'id': str(uuid.uuid4()),
-            'is_verified': False,
-        }
+        user_data = {}
 
         allowed_fields = ['username', 'full_name', 'email', 'password']  # Các trường bạn muốn chấp nhận
 
@@ -77,7 +73,6 @@ class UsersViewSetCreate(viewsets.ViewSet):
                 user_data[field] = request.data[field]
 
         serializer = UsersSerializerCreate(data=user_data)
-        print("DoDODD", serializer)
         if serializer.is_valid():
             serializer.save()
             return Response({

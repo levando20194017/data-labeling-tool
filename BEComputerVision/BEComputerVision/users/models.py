@@ -9,4 +9,5 @@ class Users(models.Model):
     phone_number = models.CharField(default= '', max_length=20, null=True, blank=True)
     address = models.CharField(default= '', max_length=255, null=True, blank=True)
     img_url = models.CharField(default= '', max_length=255, null=True, blank=True)
+    role = models.CharField(default="member", max_length=20)
     is_verified = models.BooleanField(default=False)

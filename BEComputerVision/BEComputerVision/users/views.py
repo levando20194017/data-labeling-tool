@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from .models import Users
-from BEComputerVision.users.serializers import UsersSerializer
+from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData
+import uuid
 
 class UsersViewSet(viewsets.ViewSet):
     """
@@ -11,12 +12,12 @@ class UsersViewSet(viewsets.ViewSet):
     """
 
     queryset = Users.objects.all()
-    serializer_class = UsersSerializer
+    serializer_class = UsersSerializerGetData
 
     @action(detail=False, methods=['get'], url_path="list-users")
     def list_users(self, request):
         users = self.queryset
-        serializer = UsersSerializer(users, many=True)
+        serializer = UsersSerializerGetData(users, many=True)
         
         return Response({
                          "status":200,
@@ -24,10 +25,29 @@ class UsersViewSet(viewsets.ViewSet):
                          "data": serializer.data
                          })
     
-    @action(detail=False, methods=['post'], url_path='create')  # Sử dụng url_path để tránh xung đột
+    @action(detail=False, methods=['post'], url_path='create')
     def create_user(self, request):
-        serializer = UsersSerializer(data=request.data)
+        user_data = {
+            'id': str(uuid.uuid4()),
+            'is_verified': False,
+        }
+
+        allowed_fields = ['username', 'full_name', 'email', 'password']  # Các trường bạn muốn chấp nhận
+
+        for field in allowed_fields:
+            if field in request.data:
+                user_data[field] = request.data[field]
+
+        serializer = UsersSerializerCreate(data=user_data)
+        
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": 200,
+                "message": "Create new user successfully!",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            'status': status.HTTP_400_BAD_REQUEST,
+            'message': serializer.errors['email'][0]
+            })

@@ -3,13 +3,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from .models import Users
-from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData
+from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData, UsersSerializerLogin
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.core.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import authenticate
+
 class UsersViewSetGetData(viewsets.ViewSet):
     """
     A simple Viewset for handling user actions.
@@ -52,7 +56,6 @@ class UsersViewSetGetData(viewsets.ViewSet):
                 "data": serializer.data
                 }
         })
-        
         
     #api detail user
     @swagger_auto_schema(manual_parameters=[
@@ -122,3 +125,30 @@ class UsersViewSetCreate(viewsets.ViewSet):
             'status': status.HTTP_400_BAD_REQUEST,
             'message': serializer.errors['email'][0]
             })
+        
+class UserViewSetLogin(viewsets.ViewSet):
+    """
+    A simple Viewset for handling user actions.
+    """
+    queryset = Users.objects.all()
+    serializer_class = UsersSerializerLogin
+    @action(detail=False, methods=['post'], url_path='login')
+    def login(self, request):
+        try:
+            user = Users.objects.get(email=request.data['email'], password=request.data['password'])
+            serializer = UsersSerializerGetData(user)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "status": 200,
+                "message": "OK",
+                "data": {
+                        'access_token': str(refresh.access_token),
+                        'refresh_token': str(refresh),
+                        'user_infor': serializer.data
+                    }
+                })
+        except Users.DoesNotExist:
+            return Response({
+                "status": 404,
+                "message": "Invalid email or password"
+            }, status=404)

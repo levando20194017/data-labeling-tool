@@ -6,6 +6,8 @@ from rest_framework.routers import DefaultRouter
 from BEComputerVision.product import views as views_product
 from BEComputerVision.users import views as views_users
 
+from rest_framework_simplejwt import views as jwt_views
+
 router = DefaultRouter()
 # cấu hình router. list api
 # product
@@ -16,10 +18,14 @@ router.register(r"product", views_product.ProductViewSet)
 #user
 router.register(r'users', views_users.UsersViewSetGetData, basename='users-list')
 router.register(r'users', views_users.UsersViewSetCreate, basename='users-create')
+router.register(r'users', views_users.UserViewSetLogin, basename='users-login')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
+    
+    path('api/login/',  views_users.UserViewSetLogin.as_view({'post': 'login'}), name='user-login'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     
     path("api/users/list-users/", views_users.UsersViewSetGetData.as_view({'get': 'list_users'}), name='user-list'),
     path("api/users/user-information/<str:id>/", views_users.UsersViewSetGetData.as_view({'get': 'detail_user'}), name='user-information'),

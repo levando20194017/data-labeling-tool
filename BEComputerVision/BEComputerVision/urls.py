@@ -20,8 +20,11 @@ router.register(r'users', views_users.UsersViewSetCreate, basename='users-create
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
+    
     path("api/users/list-users/", views_users.UsersViewSetGetData.as_view({'get': 'list_users'}), name='user-list'),
+    path("api/users/user-information/<str:id>/", views_users.UsersViewSetGetData.as_view({'get': 'detail_user'}), name='user-information'),
     path("api/users/create/", views_users.UsersViewSetCreate.as_view({'post': 'create'}), name='user-create'),
+    
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/docs/", SpectacularSwaggerView.as_view(url_name = "schema"))
 ]

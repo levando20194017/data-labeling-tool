@@ -13,6 +13,9 @@ from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+import random
+import smtplib
 
 class UsersViewSetGetData(viewsets.ViewSet):
     """
@@ -112,6 +115,21 @@ class UsersViewSetCreate(viewsets.ViewSet):
         for field in allowed_fields:
             if field in request.data:
                 user_data[field] = request.data[field]
+
+        # Tạo mã xác nhận 6 chữ số
+        confirmation_code = ''.join(random.choices('0123456789', k=6))
+
+        # Địa chỉ email người gửi
+        sender_email = 'levando0708@gmail.com'
+
+        # Gửi email chứa mã xác nhận
+        send_mail(
+            'Xác nhận đăng ký',
+            f'Mã xác nhận của bạn là: {confirmation_code}',
+            sender_email,
+            [user_data['email']],
+            fail_silently=False,
+        )
 
         serializer = UsersSerializerCreate(data=user_data)
         if serializer.is_valid():

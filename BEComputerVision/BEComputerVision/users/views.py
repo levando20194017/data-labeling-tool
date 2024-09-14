@@ -16,7 +16,15 @@ from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 import random
 import smtplib
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import permission_classes, authentication_classes
 
+# @swagger_auto_schema(manual_parameters=[
+#     openapi.Parameter('Authorization', in_=openapi.IN_HEADER, type=openapi.TYPE_STRING, format='password', description='Bearer token'),
+# ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 class UsersViewSetGetData(viewsets.ViewSet):
     """
     A simple Viewset for handling user actions.
@@ -116,20 +124,20 @@ class UsersViewSetCreate(viewsets.ViewSet):
             if field in request.data:
                 user_data[field] = request.data[field]
 
-        # Tạo mã xác nhận 6 chữ số
-        confirmation_code = ''.join(random.choices('0123456789', k=6))
+        # # Tạo mã xác nhận 6 chữ số
+        # confirmation_code = ''.join(random.choices('0123456789', k=6))
 
-        # Địa chỉ email người gửi
-        sender_email = 'levando0708@gmail.com'
+        # # Địa chỉ email người gửi
+        # sender_email = 'levando0708@gmail.com'
 
-        # Gửi email chứa mã xác nhận
-        send_mail(
-            'Xác nhận đăng ký',
-            f'Mã xác nhận của bạn là: {confirmation_code}',
-            sender_email,
-            [user_data['email']],
-            fail_silently=False,
-        )
+        # # Gửi email chứa mã xác nhận
+        # send_mail(
+        #     'Xác nhận đăng ký',
+        #     f'Mã xác nhận của bạn là: {confirmation_code}',
+        #     sender_email,
+        #     [user_data['email']],
+        #     fail_silently=False,
+        # )
 
         serializer = UsersSerializerCreate(data=user_data)
         if serializer.is_valid():

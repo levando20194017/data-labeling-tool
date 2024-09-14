@@ -1,6 +1,7 @@
 from django.db import models
 from BEComputerVision.projects.models import Projects
+import uuid
 
 class Versions(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)

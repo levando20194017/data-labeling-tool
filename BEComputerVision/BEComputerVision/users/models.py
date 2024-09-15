@@ -12,3 +12,7 @@ class Users(models.Model):
     img_url = models.CharField(default= '', max_length=255, null=True, blank=True)
     role = models.CharField(default="member", max_length=20)
     is_verified = models.BooleanField(default=False)
+    
+    @property
+    def is_authenticated(self):
+        return True  # Hoặc logic của bạn để kiểm tra xác thực

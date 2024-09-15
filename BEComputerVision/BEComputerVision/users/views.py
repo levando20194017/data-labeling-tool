@@ -222,7 +222,9 @@ class RefreshTokenView(viewsets.ViewSet):
         return Response({
             'status': 200,
             'message': "OK",
-            'access_token': access_token
+            'data': {
+                'access_token': access_token
+            }
             })
     
     

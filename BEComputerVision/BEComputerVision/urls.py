@@ -17,8 +17,8 @@ router.register(r"product", views_product.ProductViewSet)
 
 #user
 router.register(r'users', views_users.UsersViewSetGetData, basename='users-list')
-router.register(r'users', views_users.UsersViewSetCreate, basename='users-create')
-router.register(r'users', views_users.UserViewSetLogin, basename='users-login')
+router.register(r'users', views_users.UsersViewSetCreate, basename='users-register')
+# router.register(r'users', views_users.UserViewSetLogin, basename='users-login')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,7 +29,7 @@ urlpatterns = [
     
     path("api/users/list-users/", views_users.UsersViewSetGetData.as_view({'get': 'list_users'}), name='user-list'),
     path("api/users/user-information/<uuid:id>/", views_users.UsersViewSetGetData.as_view({'get': 'detail_user'}), name='user-information'),
-    path("api/users/create/", views_users.UsersViewSetCreate.as_view({'post': 'create'}), name='user-create'),
+    path("api/users/register/", views_users.UsersViewSetCreate.as_view({'post': 'create'}), name='user-register'),
     
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/docs/", SpectacularSwaggerView.as_view(url_name = "schema"))

@@ -120,7 +120,7 @@ class UsersViewSetCreate(viewsets.ViewSet):
     serializer_class = UsersSerializerCreate
     
     #api create new user
-    @action(detail=False, methods=['post'], url_path='create')
+    @action(detail=False, methods=['post'], url_path='register')
     def create_user(self, request):
         user_data = {}
 
@@ -178,15 +178,21 @@ class UserViewSetLogin(viewsets.ViewSet):
             
             # response = Response()
             # response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
-            return Response({
-                "status": 200,
-                "message": "OK",
-                "data": {
-                        'access_token': access_token,
-                        'refresh_token': refresh_token,
-                        'user_infor': serializer_user.data
-                    }
+            if not user.is_verified:
+                return Response({
+                    "status": 201,
+                    "message": "This account is not verified.", 
                 })
+            else:       
+                return Response({
+                    "status": 200,
+                    "message": "OK",
+                    "data": {
+                            'access_token': access_token,
+                            'refresh_token': refresh_token,
+                            'user_infor': serializer_user.data
+                        }
+                    })
         except Users.DoesNotExist:
             return Response({
                 "status": 404,

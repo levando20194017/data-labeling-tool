@@ -24,12 +24,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
     
-    path('api/login/',  views_users.UserViewSetLogin.as_view({'post': 'login'}), name='user-login'),
-    path('api/token/refresh/', views_users.RefreshTokenView.as_view({'post': 'post'}), name='token_refresh'),
+    path('api/login',  views_users.UserViewSetLogin.as_view({'post': 'login'}), name='user-login'),
+    path('api/token/refresh', views_users.RefreshTokenView.as_view({'post': 'post'}), name='token_refresh'),
     
-    path("api/users/list-users/", views_users.UsersViewSetGetData.as_view({'get': 'list_users'}), name='user-list'),
-    path("api/users/user-information/<uuid:id>/", views_users.UsersViewSetGetData.as_view({'get': 'detail_user'}), name='user-information'),
-    path("api/users/register/", views_users.UsersViewSetCreate.as_view({'post': 'create'}), name='user-register'),
+    path("api/users/list-users", views_users.UsersViewSetGetData.as_view({'get': 'list_users'}), name='user-list'),
+    path("api/users/user-information/<uuid:id>", views_users.UsersViewSetGetData.as_view({'get': 'detail_user'}), name='user-information'),
+    path("api/users/register", views_users.UsersViewSetCreate.as_view({'post': 'create'}), name='user-register'),
+    path("api/users/change-information", views_users.UsersViewSetChangeInfor.as_view({'put': 'change_infor'}), name='change-information'),
     
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/docs/", SpectacularSwaggerView.as_view(url_name = "schema"))

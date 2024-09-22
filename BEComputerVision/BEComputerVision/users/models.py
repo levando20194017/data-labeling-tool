@@ -15,4 +15,4 @@ class Users(models.Model):
     
     @property
     def is_authenticated(self):
-        return True  # Hoặc logic của bạn để kiểm tra xác thực
+        return True

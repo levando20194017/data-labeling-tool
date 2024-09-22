@@ -2,7 +2,7 @@ import jwt
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Users
-from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData, UsersSerializerLogin, RefreshTokenSerializer
+from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData, UsersSerializerLogin, RefreshTokenSerializer, UsersSerializerChangeInfor
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -110,6 +110,40 @@ class UsersViewSetGetData(viewsets.ViewSet):
                 "message": "Invalid ID format."
             }, status=400)
 
+class UsersViewSetChangeInfor(viewsets.ViewSet):
+    queryset = Users.objects.all()
+    serializer_class = UsersSerializerChangeInfor
+    
+    authentication_classes = [SafeJWTAuthentication]
+    permission_classes = [IsAuthenticated] 
+    
+    @action(detail=False, methods=['put'], url_path="change-information")
+    def change_infor(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            user = Users.objects.get(id=user_id)
+            
+            for field, value in request.data.items():
+                if field != "user_id" and field != "role":
+                    setattr(user, field, value)
+                    
+            serializer = UsersSerializerChangeInfor(instance=user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                serializerInfo = UsersSerializerGetData(user)
+                return Response({
+                    "status": 200,
+                    "message": "Change user information successfully!",
+                    "data": serializerInfo.data
+                }, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Users.DoesNotExist:
+            return Response({
+                "status": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+            
 @permission_classes([AllowAny])       
 class UsersViewSetCreate(viewsets.ViewSet):
     """
@@ -118,8 +152,7 @@ class UsersViewSetCreate(viewsets.ViewSet):
 
     queryset = Users.objects.all()
     serializer_class = UsersSerializerCreate
-    
-    #api create new user
+    #api register
     @action(detail=False, methods=['post'], url_path='register')
     def create_user(self, request):
         user_data = {}
@@ -167,6 +200,7 @@ class UserViewSetLogin(viewsets.ViewSet):
     serializer_class = UsersSerializerLogin
     @action(detail=False, methods=['post'], url_path='login')
     # @ensure_csrf_cookie
+    #api login
     def login(self, request):
         try:
             user = Users.objects.get(email=request.data['email'], password=request.data['password'])
@@ -203,6 +237,7 @@ class UserViewSetLogin(viewsets.ViewSet):
 class RefreshTokenView(viewsets.ViewSet):
     serializer_class = RefreshTokenSerializer
     
+    #api refresh token
     @action(detail=False, methods=['post'], url_path='token/refresh/')
     def post(self, request):
         refresh_token = request.data['refresh_token']
@@ -232,6 +267,7 @@ class RefreshTokenView(viewsets.ViewSet):
                 'access_token': access_token
             }
             })
-    
+
+
     
             

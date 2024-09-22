@@ -29,3 +29,8 @@ class UsersSerializerChangeInfor(serializers.ModelSerializer):
 class UsersSerializerChangePassword(serializers.ModelSerializer):
     user_id = serializers.CharField(required=True, help_text="The refresh token")
     password = serializers.CharField(required=True, help_text="The refresh token")
+    
+class UsersSerializerChangeAvatar(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = ['img_url']

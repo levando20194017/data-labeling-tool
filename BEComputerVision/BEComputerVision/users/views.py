@@ -2,7 +2,7 @@ import jwt
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Users
-from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData, UsersSerializerLogin, RefreshTokenSerializer, UsersSerializerChangeInfor
+from BEComputerVision.users.serializers import UsersSerializerCreate, UsersSerializerGetData, UsersSerializerLogin, RefreshTokenSerializer, UsersSerializerChangeInfor, UsersSerializerChangeAvatar
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -20,7 +20,6 @@ from BEComputerVision.users.utils import generate_access_token, generate_refresh
 from rest_framework import exceptions
 import os
 from dotenv import load_dotenv
-# from django.views.decorators.csrf import ensure_csrf_cookie
 
 # Load environment variables from .env file
 load_dotenv()
@@ -111,7 +110,6 @@ class UsersViewSetGetData(viewsets.ViewSet):
             }, status=400)
 
 class UsersViewSetChangeInfor(viewsets.ViewSet):
-    queryset = Users.objects.all()
     serializer_class = UsersSerializerChangeInfor
     
     authentication_classes = [SafeJWTAuthentication]
@@ -138,6 +136,42 @@ class UsersViewSetChangeInfor(viewsets.ViewSet):
                 }, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
+        except Users.DoesNotExist:
+            return Response({
+                "status": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+class ChangeAvatarAPI(viewsets.ViewSet):
+    serializer_class = UsersSerializerChangeAvatar
+    
+    authentication_classes = [SafeJWTAuthentication]
+    permission_classes = [IsAuthenticated] 
+    
+    @action(detail=False, methods=['put'], url_path="change-avatar")
+    def change_avatar(self, request):
+        img_data = request.data.get('file')  # Nhận dữ liệu ảnh dưới dạng binary
+        user_id = request.data.get('user_id')
+        file_name = request.data.get('file_name')
+        try:
+            user = Users.objects.get(id=user_id)
+
+            # Lưu file ảnh vào đường dẫn cục bộ
+            img_path = os.path.join("C:/Users/Mine/Documents/document/PROJECT/DATN/AI_Platform_Images/", file_name)
+            
+            # Đọc dữ liệu từ InMemoryUploadedFile và ghi vào file
+            with open(img_path, 'wb') as img_file:
+                for chunk in img_data.chunks():
+                    img_file.write(chunk)
+
+            # Cập nhật đường dẫn ảnh vào trường img_url của user
+            user.img_url = f'file:///C:/Users/Mine/Documents/document/PROJECT/DATN/AI_Platform_Images/{file_name}'
+            user.save()
+            return Response({
+                    "status": 200,
+                    "message": "Avatar changed successfully", 
+                    "img_url": user.img_url
+                 })
         except Users.DoesNotExist:
             return Response({
                 "status": 404,
@@ -238,7 +272,7 @@ class RefreshTokenView(viewsets.ViewSet):
     serializer_class = RefreshTokenSerializer
     
     #api refresh token
-    @action(detail=False, methods=['post'], url_path='token/refresh/')
+    @action(detail=False, methods=['post'], url_path='token/refresh')
     def post(self, request):
         refresh_token = request.data['refresh_token']
         

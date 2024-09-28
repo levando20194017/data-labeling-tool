@@ -9,3 +9,5 @@ class Dataset(models.Model):
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     image = models.ForeignKey(ImagesProjects, on_delete=models.CASCADE)
     annotation = models.ForeignKey(Annotations, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

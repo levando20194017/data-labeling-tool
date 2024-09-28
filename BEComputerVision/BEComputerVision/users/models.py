@@ -12,7 +12,9 @@ class Users(models.Model):
     img_url = models.CharField(default= '', max_length=255, null=True, blank=True)
     role = models.CharField(default="member", max_length=20)
     is_verified = models.BooleanField(default=False)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+     
     @property
     def is_authenticated(self):
         return True

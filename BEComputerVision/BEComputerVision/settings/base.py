@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'mptt',
     'drf_spectacular',
     'rest_framework_simplejwt',
+    'drf_yasg',
     #internal package
     'BEComputerVision.product',
     'BEComputerVision.users',
@@ -107,8 +108,8 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+TIME_ZONE = 'Asia/Ho_Chi_Minh'  # Thiết lập múi giờ Việt Nam
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

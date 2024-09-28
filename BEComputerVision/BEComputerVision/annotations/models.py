@@ -10,3 +10,5 @@ class Annotations(models.Model):
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     image = models.ForeignKey(ImagesProjects, on_delete=models.CASCADE)
     data_url = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

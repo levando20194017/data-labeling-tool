@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from .models import Projects
 from BEComputerVision.users.models import Users
 from BEComputerVision.roles.models import Roles
-from BEComputerVision.projects.serializers import ProjectListSerializer, ProjectSerializer
+from BEComputerVision.projects.serializers import CreateProjectSerializer, ProjectSerializer
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -15,18 +15,20 @@ from BEComputerVision.users.authentication import SafeJWTAuthentication
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from dotenv import load_dotenv
-from django.db.models import Q
+from django.db import IntegrityError
 # Load environment variables from .env file
 load_dotenv()
 
         
-class ProjectsViewSetGetData(viewsets.ViewSet):
+class ProjectsViewSet(viewsets.ViewSet):
     """
     A simple Viewset for handling user actions.
     """
-    serializer_class = ProjectSerializer
     authentication_classes = [SafeJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    #api get list projects
+    serializer_class = ProjectSerializer
     @action(detail=False, methods=['get'], url_path="list-projects")
     def list_projects(self, request,):
         """
@@ -79,7 +81,7 @@ class ProjectsViewSetGetData(viewsets.ViewSet):
             }
         })
         
-    #api detail user
+    #api detail project
     @swagger_auto_schema(manual_parameters=[
         openapi.Parameter('id', in_=openapi.IN_PATH, type=openapi.TYPE_STRING, description='ID of the user'),
     ])
@@ -115,3 +117,69 @@ class ProjectsViewSetGetData(viewsets.ViewSet):
                 "status": 400,
                 "message": "Invalid ID format."
             }, status=400)
+    
+    #api create new project
+    serializer_class = CreateProjectSerializer
+    @action(detail=False, methods=['post'], url_path="create-new-project")
+    def create_project(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            user = Users.objects.get(id=user_id)
+            
+            project_data = {}
+            project_data['user'] = user_id
+            allowed_fields = ['project_name', 'category']
+            
+            # Kiểm tra xem category có hợp lệ không
+            if request.data['category'] not in ["Object Detection", "Segmentation", "Classification"]:
+                return Response({
+                    "status": 400,
+                    "message": "Category field must be one of the following options: Object Detection, Segmentation, or Classification",
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Lấy dữ liệu từ request và bỏ vào project_data
+            for field in allowed_fields:
+                if field in request.data:
+                    project_data[field] = request.data[field]
+            
+            # Khởi tạo serializer
+            serializer = CreateProjectSerializer(data=project_data)
+            
+            if serializer.is_valid():
+                try:
+                    # Lưu dữ liệu vào database
+                    serializer.save()
+                    return Response({
+                        "status": 200,
+                        "message": "Create new project successfully!",
+                    }, status=status.HTTP_201_CREATED)
+                except IntegrityError:
+                    # Bắt lỗi trùng tên dự án
+                    return Response({
+                        "status": 400,
+                        "message": "A project with this name already exists. Please choose a different name.",
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Trả về lỗi nếu serializer không hợp lệ
+            return Response({
+                'status': status.HTTP_400_BAD_REQUEST,
+                'message': 'Create new project failed!',
+                'errors': serializer.errors
+            })
+        
+        except Users.DoesNotExist:
+            # Bắt lỗi khi không tìm thấy user
+            return Response({
+                "status": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            # Bắt các lỗi ngoại lệ khác
+            return Response({
+                "status": 500,
+                "message": "Internal server error: " + str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    
+    #api rename project

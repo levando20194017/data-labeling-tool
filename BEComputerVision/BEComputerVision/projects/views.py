@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from .models import Projects
 from BEComputerVision.users.models import Users
 from BEComputerVision.roles.models import Roles
-from BEComputerVision.projects.serializers import CreateProjectSerializer, ProjectSerializer
+from BEComputerVision.projects.serializers import CreateProjectSerializer, ProjectSerializer, RenameProjectSerializer, RenameProjectSerializerShowListBodyData
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -122,12 +122,18 @@ class ProjectsViewSet(viewsets.ViewSet):
     serializer_class = CreateProjectSerializer
     @action(detail=False, methods=['post'], url_path="create-new-project")
     def create_project(self, request):
+        """
+        request body:
+        - user_id: id of user
+        - project_name: name of project (string and unique)
+        - category: type of project. One of three options (Object Detection, Segmentation or Classification)
+        """
         try:
             user_id = request.data.get('user_id')
             user = Users.objects.get(id=user_id)
             
             project_data = {}
-            project_data['user'] = user_id
+            project_data['user'] = user_id #ở đây chỉ cần truyền lưu user_id vào trường user của bảng project
             allowed_fields = ['project_name', 'category']
             
             # Kiểm tra xem category có hợp lệ không
@@ -183,3 +189,44 @@ class ProjectsViewSet(viewsets.ViewSet):
             
     
     #api rename project
+    serializer_class = RenameProjectSerializerShowListBodyData
+    @action(detail=False, methods=['put'], url_path="rename-project")
+    def rename_project(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            new_project_name = request.data.get('project_name')
+            project_id = request.data.get('project_id')
+            
+            user = Users.objects.get(id=user_id)
+            project = Projects.objects.get(id = project_id, user = user) #trường user trong bảng project đang là 1 đối tượng
+            project.project_name = new_project_name
+            
+            serializer = RenameProjectSerializer(instance=project, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": 200,
+                    "message": "Change project_name successfully!",
+                }, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Users.DoesNotExist:
+            # Bắt lỗi khi không tìm thấy user
+            return Response({
+                "status": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Projects.DoesNotExist:
+            # Bắt lỗi khi không tìm thấy project
+            return Response({
+                "status": 404,
+                "message": "Project not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            # Bắt các lỗi ngoại lệ khác
+            return Response({
+                "status": 500,
+                "message": "Internal server error: " + str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

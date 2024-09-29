@@ -1,14 +1,10 @@
 from rest_framework import serializers
 from .models import Projects
 
-class ProjectListSerializer(serializers.ModelSerializer):
-    user_id = serializers.UUIDField()
-    page_index = serializers.IntegerField(required=True)
-    page_size = serializers.IntegerField(required=True)
-    type = serializers.CharField(required=True)
+class CreateProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Projects
-        fields = '__all__'
+        fields = ['project_name', 'category', 'user']
         
 class ProjectSerializer(serializers.ModelSerializer):
     creator = serializers.UUIDField(source='user.username', read_only=True)

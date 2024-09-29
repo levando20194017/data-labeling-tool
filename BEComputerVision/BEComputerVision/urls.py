@@ -34,7 +34,7 @@ router.register(r'users', views_users.UsersViewSetCreate, basename='users-regist
 # router.register(r'users', views_users.UserViewSetLogin, basename='users-login')
 
 #projects
-router.register(r'projects', views_projects.ProjectsViewSetGetData, basename='list-projects')
+router.register(r'projects', views_projects.ProjectsViewSet, basename='list-projects')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -50,8 +50,9 @@ urlpatterns = [
     path("api/users/change-information/", views_users.UsersViewSetChangeInfor.as_view({'put': 'change_infor'}), name='change-information'),
     path("api/users/change-avatar/", views_users.ChangeAvatarAPI.as_view({'put': 'change_avatar'}), name='change-avatar'),
     #projects
-    path("api/projects/list-projects/", views_projects.ProjectsViewSetGetData.as_view({'get': 'list_projects'}), name='list-projects'),
-    path("api/projects/project-information/<uuid:id>/", views_projects.ProjectsViewSetGetData.as_view({'get': 'detail_project'}), name='project-information'),
+    path("api/projects/list-projects/", views_projects.ProjectsViewSet.as_view({'get': 'list_projects'}), name='list-projects'),
+    path("api/projects/project-information/<uuid:id>/", views_projects.ProjectsViewSet.as_view({'get': 'detail_project'}), name='project-information'),
+    path("api/projects/create-new-project/", views_projects.ProjectsViewSet.as_view({'post': 'create_project'}), name='create-new-project'),
    
     # path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
